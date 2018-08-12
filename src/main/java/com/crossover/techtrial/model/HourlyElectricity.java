@@ -1,5 +1,6 @@
 package com.crossover.techtrial.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -33,7 +34,7 @@ public class HourlyElectricity implements Serializable {
   @JsonIgnore
   @ManyToOne
   @JoinColumn(name = "panel_id", referencedColumnName = "id")
-  Panel panel;
+  Panel panel ;
   
   @Column(name = "generated_electricity")
   Long generatedElectricity;
@@ -60,7 +61,7 @@ public class HourlyElectricity implements Serializable {
   public Long getGeneratedElectricity() {
     return generatedElectricity;
   }
-
+  
   public void setGeneratedElectricity(Long generatedElectricity) {
     this.generatedElectricity = generatedElectricity;
   }
@@ -68,7 +69,7 @@ public class HourlyElectricity implements Serializable {
   public LocalDateTime getReadingAt() {
     return readingAt;
   }
-
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
   public void setReadingAt(LocalDateTime readingAt) {
     this.readingAt = readingAt;
   }

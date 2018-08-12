@@ -15,13 +15,15 @@ public class DailyElectricity implements Serializable {
 
   private LocalDate date;
   
-  private Long sum;
+  private Long sum = (long) 0;
   
   private Double average;
   
-  private Long min;
+  private Long min = (long) 0;
   
-  private Long max;
+  private Long max = (long) 0;
+  
+  private int hrsreg = 0;
 
   public LocalDate getDate() {
     return date;
@@ -36,7 +38,9 @@ public class DailyElectricity implements Serializable {
   }
 
   public void setSum(Long sum) {
-    this.sum = sum;
+    this.sum += sum;
+    this.hrsreg += 1;
+    this.average = (double) (this.sum/this.hrsreg);
   }
 
   public Double getAverage() {
@@ -52,6 +56,7 @@ public class DailyElectricity implements Serializable {
   }
 
   public void setMin(Long min) {
+	  if(min<this.min)
     this.min = min;
   }
 
@@ -60,6 +65,7 @@ public class DailyElectricity implements Serializable {
   }
 
   public void setMax(Long max) {
+	  if(max>this.max)
     this.max = max;
   }
 
@@ -68,5 +74,13 @@ public class DailyElectricity implements Serializable {
     return "DailyElectricity [date=" + date + ", sum=" + sum + ", average="
         + average + ", min=" + min + ", max=" + max + "]";
   }
+
+public int getHrsreg() {
+	return hrsreg;
+}
+
+public void setHrsreg(int hrsreg) {
+	this.hrsreg = hrsreg;
+}
 
 }

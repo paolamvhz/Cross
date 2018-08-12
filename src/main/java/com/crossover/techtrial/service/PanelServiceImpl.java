@@ -1,5 +1,7 @@
 package com.crossover.techtrial.service;
 
+
+import com.crossover.techtrial.exceptions.GlobalExceptionHandler;
 import com.crossover.techtrial.model.Panel;
 import com.crossover.techtrial.repository.PanelRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +25,9 @@ public class PanelServiceImpl implements PanelService {
   
   @Override
   public void register(Panel panel) { 
+	if(findBySerial(panel.getSerial())==null)//to not be able to register twice the same Panel
     panelRepository.save(panel);
+	
   }
   
   public Panel findBySerial(String serial) {

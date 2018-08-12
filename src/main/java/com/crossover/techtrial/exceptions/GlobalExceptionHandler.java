@@ -26,4 +26,5 @@ public class GlobalExceptionHandler {
         new AbstractMap.SimpleEntry<>("message", "Unable to process this request.");
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
+ 
 }

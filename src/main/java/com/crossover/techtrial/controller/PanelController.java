@@ -5,7 +5,12 @@ import com.crossover.techtrial.model.HourlyElectricity;
 import com.crossover.techtrial.model.Panel;
 import com.crossover.techtrial.service.HourlyElectricityService;
 import com.crossover.techtrial.service.PanelService;
+import com.crossover.techtrial.service.PanelServiceImpl;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -55,6 +60,8 @@ public class PanelController {
   public ResponseEntity<?> saveHourlyElectricity(
       @PathVariable(value = "panel-serial") String panelSerial, 
       @RequestBody HourlyElectricity hourlyElectricity) {
+	  Panel panel = panelService.findBySerial(panelSerial);
+	hourlyElectricity.setPanel(panel);
     return ResponseEntity.ok(hourlyElectricityService.save(hourlyElectricity));
   }
    
@@ -64,7 +71,7 @@ public class PanelController {
   
   @GetMapping(path = "/api/panels/{panel-serial}/hourly")
   public ResponseEntity<?> hourlyElectricity(
-      @PathVariable(value = "banel-serial") String panelSerial,
+      @PathVariable(value = "panel-serial") String panelSerial,
       @PageableDefault(size = 5,value = 0) Pageable pageable) {
     Panel panel = panelService.findBySerial(panelSerial);
     if (panel == null) {
@@ -84,12 +91,41 @@ public class PanelController {
   
   @GetMapping(path = "/api/panels/{panel-serial}/daily")
   public ResponseEntity<List<DailyElectricity>> allDailyElectricityFromYesterday(
-      @PathVariable(value = "panel-serial") String panelSerial) {
+      @PathVariable(value = "panel-serial") String panelSerial,
+  	@PageableDefault(size = 5,value = 0) Pageable pageable){
     List<DailyElectricity> dailyElectricityForPanel = new ArrayList<>();
+    HashMap<LocalDate,DailyElectricity > map = new HashMap<>();
     /**
      * IMPLEMENT THE LOGIC HERE and FEEL FREE TO MODIFY OR ADD CODE TO RELATED CLASSES.
      * MAKE SURE NOT TO CHANGE THE SIGNATURE OF ANY END POINT. NO PAGINATION IS NEEDED HERE.
      */
+    Panel panel = panelService.findBySerial(panelSerial);
+    
+    DailyElectricity de = new DailyElectricity();
+    Page<HourlyElectricity> page = hourlyElectricityService.getAllHourlyElectricityByPanelId(
+            panel.getId(), pageable);
+    List<HourlyElectricity> list = page.getContent();
+    
+    for(HourlyElectricity h : list ) {
+    	LocalDate day = h.getReadingAt().withHour(0).toLocalDate();
+    	if(map.containsKey(day)) {
+    		de = map.get(day);
+    		de.setSum(h.getGeneratedElectricity());
+    		de.setMin(h.getGeneratedElectricity());
+    		de.setMax(h.getGeneratedElectricity());
+    		map.replace(day, de);
+    	}else {
+    		de = new DailyElectricity();
+    		de.setDate(day);
+    		de.setSum(h.getGeneratedElectricity());
+    		de.setMin(h.getGeneratedElectricity());
+    		de.setMax(h.getGeneratedElectricity());
+    		map.put(day, de);
+    	}
+    	
+    }
+    dailyElectricityForPanel = new ArrayList<DailyElectricity> (map.values());
+    
     return ResponseEntity.ok(dailyElectricityForPanel);
   }
 }
